@@ -6,6 +6,11 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+
+  "scripts": {
+  "start": "node app.js"  // or the entry point of your app
+}
+
   "keywords": [],
   "author": "",
   "license": "ISC",
