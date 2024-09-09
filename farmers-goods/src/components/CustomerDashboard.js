@@ -1,29 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 const initialCustomer = {
-<<<<<<< HEAD
   name: 'Shri Ram',
   number: '1234567890',
   email: 'ram@example.com',
-=======
-  name: 'Rajesh Kumar',
-  number: '9876543210',
-  email: 'rajesh@example.com',
->>>>>>> 7b2c651 (new)
   address: {
     home: '789 Park Avenue, Delhi',
     office: '101 Business Hub, Mumbai'
   },
   orders: [
-<<<<<<< HEAD
     { name: 'Apples', price: 79.99, date: '2023-01-01' },
     { name: 'Bananas', price: 29.99, date: '2023-01-15' },
     { name: 'Oranges', price: 49.99, date: '2023-02-01' }
-=======
-    { name: 'Apples', price: 799.99, date: '2023-01-01' },
-    { name: 'Bananas', price: 299.99, date: '2023-01-15' },
-    { name: 'Oranges', price: 499.99, date: '2023-02-01' }
->>>>>>> 7b2c651 (new)
   ],
   profilePhoto: null
 };
