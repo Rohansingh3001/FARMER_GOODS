@@ -2,21 +2,25 @@
     "name": "backend",
     "version": "1.0.0",
     "description": "",
-    "main": "app.js", 
+    "main": "app.js",
     "scripts": {
-      "test": "echo \"Error: no test specified\" && exit 1"
-     },
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "nodemon server.js"
+    },
     "keywords": [],
     "author": "",
     "license": "ISC",
     "dependencies": {
-      "@vitalets/google-translate-api": "^9.2.0",
-      "cors": "^2.8.5",
-      "express": "^4.19.2",
-      "langdetect": "^0.2.1",
-      "mongoose": "^8.5.2",
-      "multer": "^1.4.5-lts.1",
-      "translate": "^3.0.0"
+        "@vitalets/google-translate-api": "^9.2.0",
+        "bcryptjs": "^2.4.3",
+        "body-parser": "^1.20.2",
+        "cors": "^2.8.5",
+        "express": "^4.19.2",
+        "express-validator": "^7.2.0",
+        "jsonwebtoken": "^9.0.2",
+        "langdetect": "^0.2.1",
+        "mongoose": "^8.5.2",
+        "multer": "^1.4.5-lts.1",
+        "translate": "^3.0.0"
     }
-  }
-  
+}
