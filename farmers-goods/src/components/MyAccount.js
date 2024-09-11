@@ -1,36 +1,36 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { jwtDecode } from 'jwt-decode'; // Correct import for version 3.x
 
 const MyAccount = () => {
   const navigate = useNavigate();
-  const auth = getAuth();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        // Check the user's role from a custom claim or database
-        user.getIdTokenResult().then((idTokenResult) => {
-          const role = idTokenResult.claims.role || ''; // Assume 'role' is stored in custom claims
+    const token = localStorage.getItem('token'); // Get the JWT from localStorage
 
-          if (role === 'farmer') {
-            navigate('/FarmerDashboard');
-          } else if (role === 'customer') {
-            navigate('/CustomerDashboard');
-          } else {
-            // If no role, redirect to login page or handle it as needed
-            navigate('/login');
-          }
-        });
-      } else {
-        // If no user is logged in, redirect to the login page
-        navigate('/login');
+    if (token) {
+      try {
+        // Decode the JWT to get the user info
+        const decodedToken = jwtDecode(token); // Correct function call
+        const role = decodedToken.role; // Assuming the JWT contains the role
+
+        if (role === 'farmer') {
+          navigate('/FarmerDashboard');
+        } else if (role === 'customer') {
+          navigate('/CustomerDashboard');
+        } else {
+          // If no valid role, redirect to login
+          navigate('/login');
+        }
+      } catch (error) {
+        console.error('Invalid token:', error);
+        navigate('/login'); // Redirect to login if there's an error with the token
       }
-    });
-
-    // Cleanup subscription on unmount
-    return () => unsubscribe();
-  }, [auth, navigate]);
+    } else {
+      // No token, redirect to login
+      navigate('/login');
+    }
+  }, [navigate]);
 
   return (
     <div>

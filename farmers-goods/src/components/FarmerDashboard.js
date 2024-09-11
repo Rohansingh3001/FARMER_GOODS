@@ -1,23 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { FaPlus, FaSignOutAlt } from 'react-icons/fa';
 import ProductUpload from './ProductUploadForm';
-import { getAuth, signOut } from 'firebase/auth'; 
-import { collection, getDocs } from 'firebase/firestore';
-import { auth, db } from '../firebase'; // Go up one directory from `components` to `src`
- // Import the configured Firestore instance
+import axios from 'axios';
 
 const FarmerDashboard = ({ products = [], onProductUpload }) => {
   const [showForm, setShowForm] = useState(false);
   const [farmers, setFarmers] = useState([]);
-  const auth = getAuth(); 
 
-  // Fetch farmers' details from Firestore
+  // Fetch farmers' details from MongoDB using an API
   const fetchFarmers = async () => {
     try {
-      const farmersCollection = collection(db, 'farmers');
-      const farmersSnapshot = await getDocs(farmersCollection);
-      const farmersList = farmersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setFarmers(farmersList);
+      const response = await axios.get('/api/farmers'); // Replace with your API endpoint
+      setFarmers(response.data);
     } catch (error) {
       console.error('Error fetching farmers:', error);
     }
@@ -34,12 +28,9 @@ const FarmerDashboard = ({ products = [], onProductUpload }) => {
 
   // Handle logout
   const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      window.location.href = '/login'; // Redirect to login page
-    } catch (error) {
-      console.error('Logout error:', error.message);
-    }
+    // Implement logout logic if using JWT
+    localStorage.removeItem('token'); // Assuming token is stored in localStorage
+    window.location.href = '/login'; // Redirect to login page
   };
 
   return (

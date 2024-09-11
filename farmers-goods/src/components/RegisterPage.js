@@ -1,27 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { initializeApp } from 'firebase/app';
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
-import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
+import axios from 'axios';  // Using Axios to interact with backend
 import HCaptcha from '@hcaptcha/react-hcaptcha';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
-
-// Firebase configuration from environment variables
-const firebaseConfig = {
-  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
-  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.REACT_APP_FIREBASE_APP_ID,
-  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
-};
-
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
 
 const RegisterPage = () => {
   const [role, setRole] = useState('customer'); // Default role is customer
@@ -53,32 +34,44 @@ const RegisterPage = () => {
       setError('Please verify that you are not a robot.');
       return;
     }
+    console.log({
+      name,
+      email,
+      mobile,
+      password,
+      confirmPassword,
+      role,
+      productType: role === 'farmer' ? productType : 'N/A', // Only show product type for farmers
+      captchaVerified,
+    });
+  
+    if (password !== confirmPassword) {
+      setError('Passwords do not match!');
+      return;
+    }
+  
 
     try {
-      // Create user with email and password
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-
-      // Save additional user information in Firestore
-      await setDoc(doc(db, "users", user.uid), {
+      // Send data to the backend for registration
+      const response = await axios.post('http://localhost:5000/api/register', {
         name,
         email,
         mobile,
+        password,
         role,
         productType: role === 'farmer' ? productType : null, // Store productType only if the role is farmer
       });
 
-      console.log('User registered:', user.email);
-
-      // Redirect based on the role
+      console.log('User registered:', response.data);
+      // Navigate based on the role
       if (role === 'customer') {
         navigate('/MyAccount');
       } else if (role === 'farmer') {
         navigate('/MyAccount');
       }
     } catch (error) {
-      console.error('Registration error:', error.message);
-      setError(error.message);
+      console.error('Registration error:', error.response?.data || error.message);
+      setError(error.response?.data || error.message);
     }
   };
 

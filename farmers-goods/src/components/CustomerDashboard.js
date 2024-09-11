@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom'; // Assuming you're using React Router
 
 const initialCustomer = {
   name: 'Shri Ram',
@@ -24,8 +25,9 @@ const CustomerDashboard = () => {
   const [officeAddress, setOfficeAddress] = useState(customer.address.office);
   const [isEditingHomeAddress, setIsEditingHomeAddress] = useState(false);
   const [isEditingOfficeAddress, setIsEditingOfficeAddress] = useState(false);
-  
+
   const popupRef = useRef(null);
+  const navigate = useNavigate(); // React Router hook to navigate between pages
 
   // Close popup if clicked outside
   useEffect(() => {
@@ -80,13 +82,36 @@ const CustomerDashboard = () => {
     setIsEditingOfficeAddress(false);
   };
 
+  // Updated logout function
+  const handleLogout = () => {
+    // Step 1: Clear user authentication data
+    localStorage.removeItem('authToken'); // Clear token from localStorage or sessionStorage
+    sessionStorage.removeItem('authToken'); // Example if you're storing in sessionStorage
+    
+    // Step 2: Reset the customer state
+    setCustomer({
+      name: '',
+      number: '',
+      email: '',
+      address: {
+        home: '',
+        office: ''
+      },
+      orders: [],
+      profilePhoto: null
+    });
+
+    // Step 3: Redirect to login page
+    navigate('/login');
+  };
+
   return (
     <div className="max-w-7xl mx-auto p-4 sm:p-6 md:p-8 bg-gray-100">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-3xl font-bold text-green-600">Customer Dashboard</h1>
-        <div className="relative">
+        <div className="relative flex items-center">
           <button
-            className="bg-green-800 hover:bg-green-900 text-white font-bold py-2 px-2 rounded-full"
+            className="bg-green-800 hover:bg-green-900 text-white font-bold py-2 px-2 rounded-full mr-4"
             onClick={() => setShowProfilePhotoPopup(true)}
           >
             {customer.profilePhoto ? (
@@ -111,6 +136,12 @@ const CustomerDashboard = () => {
                 />
               </svg>
             )}
+          </button>
+          <button
+            className="bg-red-700 hover:bg-red-800 text-white font-bold py-2 px-4 rounded-full"
+            onClick={handleLogout}
+          >
+            Logout
           </button>
           {showProfilePhotoPopup && (
             <div
@@ -168,6 +199,7 @@ const CustomerDashboard = () => {
           )}
         </div>
       </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <div className="bg-white rounded-lg shadow-lg p-4 border border-gray-300">
           <h2 className="text-xl font-bold text-green-600">Customer Details</h2>

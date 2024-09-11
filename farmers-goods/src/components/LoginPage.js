@@ -1,25 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { initializeApp } from 'firebase/app';
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
-import { getFirestore, doc, getDoc } from 'firebase/firestore';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
-
-// Firebase configuration from environment variables
-const firebaseConfig = {
-  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
-  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.REACT_APP_FIREBASE_APP_ID,
-  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+import axios from 'axios'; // Import axios for API calls
 
 const LoginPage = () => {
   const [role, setRole] = useState('customer'); // Default role is customer
@@ -29,42 +11,44 @@ const LoginPage = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
+  // Handle role change (customer/farmer)
   const handleRoleChange = (e) => {
     setRole(e.target.value);
   };
 
+  // Handle login form submission
   const handleLogin = async (e) => {
     e.preventDefault();
     setError(null); // Clear previous errors
 
     try {
-      // Sign in with Firebase Authentication
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
+      // Make a POST request to the backend login API
+      const response = await axios.post('http://localhost:5000/api/login', {
+        email,
+        password,
+        role,
+      });
 
-      // Get the user's role from Firestore
-      const userDoc = await getDoc(doc(db, "users", user.uid));
-      if (userDoc.exists()) {
-        const userData = userDoc.data();
-        const storedRole = userData.role;
-        localStorage.setItem("user", JSON.stringify(userData))
-        // Check if the stored role matches the selected role during login
-        if (storedRole === role) {
-          // Navigate based on the role
-          if (role === 'customer') {
-            navigate('/MyAccount');
-          } else if (role === 'farmer') {
-            navigate('/MyAccount');
-          }
-        } else {
-          setError('Incorrect role selected. Please verify your role.');
-        }
-      } else {
-        setError('User data not found.');
+      // Extract token from the response
+      const { token, user } = response.data;
+
+      // Store the JWT token in localStorage
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user)); // Store user data
+
+      // Redirect user based on their role
+      if (user.role === 'customer') {
+        navigate('/CustomerDashboard');
+      } else if (user.role === 'farmer') {
+        navigate('/FarmerDashboard');
       }
     } catch (error) {
       console.error('Login error:', error.message);
-      setError('Login failed. Please check your credentials and try again.');
+      if (error.response && error.response.data.message) {
+        setError(error.response.data.message); // Display error from the backend
+      } else {
+        setError('Login failed. Please check your credentials and try again.');
+      }
     }
   };
 
@@ -136,7 +120,7 @@ const LoginPage = () => {
         {/* Sign Up Link */}
         <p className="text-center mt-4">
           Don’t have an account?{' '}
-          <Link to="/SignUp" className="text-green-600 hover:underline">
+          <Link to="/signup" className="text-green-600 hover:underline">
             Register Now
           </Link>
         </p>
